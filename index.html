@@ -498,22 +498,40 @@
             const data = {
                 name: form.querySelector('input[type="text"]').value,
                 email: form.querySelector('input[type="email"]').value,
-                attending: form.querySelector('select').value,
+                attending: form.querySelectorAll('select')[0].value,
                 guests: document.getElementById('guestCount') ? document.getElementById('guestCount').value : '1',
                 kids: document.getElementById('kids') ? document.getElementById('kids').checked : false
             };
 
-            fetch('https://script.google.com/macros/s/AKfycbxzYeNysoIXxe5jmaCnY2wmh2L_VohfEOloGbBijgmAIl1FgEVT_tX-Pcx1bsCXK-_BvA/exec', {
-                method: 'POST',
-                body: JSON.stringify(data)
-            }).then(response => {
-                form.style.display = 'none';
-                document.getElementById('rsvpSuccess').style.display = 'block';
-            }).catch(err => {
-                // Google Apps Script redirects cause a CORS error but data still goes through
-                form.style.display = 'none';
-                document.getElementById('rsvpSuccess').style.display = 'block';
+            // Create a hidden iframe to handle the POST (avoids CORS issues)
+            var iframe = document.createElement('iframe');
+            iframe.name = 'hidden_iframe';
+            iframe.style.display = 'none';
+            document.body.appendChild(iframe);
+
+            // Create a hidden form that submits to Google Apps Script
+            var hiddenForm = document.createElement('form');
+            hiddenForm.method = 'POST';
+            hiddenForm.action = 'https://script.google.com/macros/s/AKfycbxzYeNysoIXxe5jmaCnY2wmh2L_VohfEOloGbBijgmAIl1FgEVT_tX-Pcx1bsCXK-_BvA/exec';
+            hiddenForm.target = 'hidden_iframe';
+
+            // Add data as hidden inputs
+            Object.keys(data).forEach(function(key) {
+                var input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = key;
+                input.value = data[key];
+                hiddenForm.appendChild(input);
             });
+
+            document.body.appendChild(hiddenForm);
+            hiddenForm.submit();
+
+            // Show success after a short delay
+            setTimeout(function() {
+                form.style.display = 'none';
+                document.getElementById('rsvpSuccess').style.display = 'block';
+            }, 1500);
         }
 
         // ─── GUEST RESTRICTION via URL param ───
