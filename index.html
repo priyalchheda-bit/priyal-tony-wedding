@@ -505,13 +505,12 @@
 
             fetch('https://script.google.com/macros/s/AKfycbxzYeNysoIXxe5jmaCnY2wmh2L_VohfEOloGbBijgmAIl1FgEVT_tX-Pcx1bsCXK-_BvA/exec', {
                 method: 'POST',
-                mode: 'no-cors',
-                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data)
-            }).then(() => {
+            }).then(response => {
                 form.style.display = 'none';
                 document.getElementById('rsvpSuccess').style.display = 'block';
-            }).catch(() => {
+            }).catch(err => {
+                // Google Apps Script redirects cause a CORS error but data still goes through
                 form.style.display = 'none';
                 document.getElementById('rsvpSuccess').style.display = 'block';
             });
