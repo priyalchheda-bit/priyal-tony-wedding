@@ -490,8 +490,31 @@
 
         function submitRSVP(e) {
             e.preventDefault();
-            document.getElementById('rsvpForm').style.display = 'none';
-            document.getElementById('rsvpSuccess').style.display = 'block';
+            const form = document.getElementById('rsvpForm');
+            const btn = form.querySelector('.submit-btn');
+            btn.textContent = 'Sending...';
+            btn.disabled = true;
+
+            const data = {
+                name: form.querySelector('input[type="text"]').value,
+                email: form.querySelector('input[type="email"]').value,
+                attending: form.querySelector('select').value,
+                guests: document.getElementById('guestCount') ? document.getElementById('guestCount').value : '1',
+                kids: document.getElementById('kids') ? document.getElementById('kids').checked : false
+            };
+
+            fetch('https://script.google.com/macros/s/AKfycbxzYeNysoIXxe5jmaCnY2wmh2L_VohfEOloGbBijgmAIl1FgEVT_tX-Pcx1bsCXK-_BvA/exec', {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            }).then(() => {
+                form.style.display = 'none';
+                document.getElementById('rsvpSuccess').style.display = 'block';
+            }).catch(() => {
+                form.style.display = 'none';
+                document.getElementById('rsvpSuccess').style.display = 'block';
+            });
         }
 
         // ─── GUEST RESTRICTION via URL param ───
